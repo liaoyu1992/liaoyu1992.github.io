@@ -393,22 +393,58 @@
           
             <h2 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h2><p>理解synchronized的含义、明确synchronized关键字修饰普通方法、静态方法和代码块时锁对象的差异。</p>
 <p>有如下一个类A</p>
-<p>class A {<br>public synchronized void a() {<br>System.out.println(“a”+System.currentTimeMillis());<br>}</p>
-<p>public synchronized void b() {<br>System.out.println(“b”+System.currentTimeMillis());<br>}<br>}</p>
-<p>然后创建两个对象</p>
-<p>A a1 = new A();<br>A a2 = new A();</p>
-<p>然后在两个线程中并发访问如下代码：</p>
-<p>Thread a1.a();<br>Thread a2.a();</p>
-<p>public class Test {<br>public static void main(String[] args) {</p>
-<p>A a1 = new A();<br>A a2 = new A();</p>
-<p>new Thread(new Runnable() {<br>@Override<br>public void run() {<br>System.out.println(System.currentTimeMillis());<br>a1.a();<br>}<br>}).start();</p>
-<p>new Thread(new Runnable() {<br>@Override<br>public void run() {<br>System.out.println(System.currentTimeMillis());<br>a2.a();<br>}<br>}).start();</p>
-<p>}<br>}</p>
-<p>请问二者能否构成线程同步？</p>
+<pre><code>class A {
+    public synchronized void a() {
+        System.out.println(&quot;a&quot;+System.currentTimeMillis());
+    }
+
+    public synchronized void b() {
+        System.out.println(&quot;b&quot;+System.currentTimeMillis());
+    }
+}
+</code></pre><p>然后创建两个对象</p>
+<pre><code>A a1 = new A();
+A a2 = new A();
+</code></pre><p>然后在两个线程中并发访问如下代码：</p>
+<pre><code>Thread a1.a();
+Thread a2.a();
+
+public class Test {
+    public static void main(String[] args) {
+
+        A a1 = new A();
+        A a2 = new A();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(System.currentTimeMillis());
+                a1.a();
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(System.currentTimeMillis());
+                a2.a();
+            }
+        }).start();
+
+    }
+}
+</code></pre><p>请问二者能否构成线程同步？</p>
 <p>如果A的定义是下面这种呢？</p>
-<p>class A {<br>public static synchronized void a() {<br>System.out.println(“a”);<br>}</p>
-<p>public static synchronized void b() {<br>System.out.println(“b”);<br>}<br>}</p>
-<h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>没有加static的时候结果是这样的:</p>
+<pre><code>class A {
+    public static synchronized void a() {
+        System.out.println(&quot;a&quot;+System.currentTimeMillis());
+    }
+
+    public static synchronized void b() {
+        System.out.println(&quot;b&quot;+System.currentTimeMillis());
+    }
+}
+</code></pre><h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>没有加static的时候结果是这样的:</p>
 <p><img src="/2018/02/01/java-sunc/sync.jpg" alt="sync"></p>
 <p>加了static的时候结果是这样的:</p>
 <p><img src="/2018/02/01/java-sunc/sync1.jpg" alt="sync1"></p>
