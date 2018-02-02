@@ -3,7 +3,13 @@
   <entry>
     <title><![CDATA[android-service]]></title>
     <url>%2F2018%2F02%2F01%2Fandroid-service%2F</url>
-    <content type="text"></content>
+    <content type="text"><![CDATA[学习目标清晰地理解Service。 Service的start和bind状态有什么区别？ 同一个Service，先startService，然后再bindService，如何把它停止掉？ 你有注意到Service的onStartCommand方法的返回值吗？不同返回值有什么区别？ Service的生命周期方法onCreate、onStart、onBind等运行在哪个线程？ Service的start和bind状态有什么区别： start启动的service，service有独立的生命周期，不依赖该组件； 多次调用start方法，会重复调用onStartCommand方法； start启动的service，必须调用stopService或者stopSelfl来停止service（IntentService会自动调用stopSelf方法）； 多次调用bind方法，只会调用一次onBind方法，bind绑定的service，service依赖这些组件，这些组件全部销毁后，service也会一起销毁。 同一个Service，先startService，然后再bindService，如何把它停止掉？ 不论被start多少次，只需要stopService或者stopSelf一次； 调用n次bindService只需要调用一次unBindService； 所以，需要调用一次stopService（或者stopSelf）和一次unBindService方法，执行顺序没有要求，最后一个stopService（stopSelf）或者unBindService会导致Service执行onDestory方法。 你有注意到Service的onStartCommand方法的返回值吗？不同返回值有什么区别？ 一共有如下4种返回值： /**为了兼容版本，在Service被杀死后,并不保证onStartCommand会被再一次调用*/ public static final int START_STICKY_COMPATIBILITY = 0; /**Service被杀死后，保留启动状态，但是不保存intent， 之后系统会尝试重启Service，并重新回调onStartCommand方法， 如果接下来没有其他start命令，intent会为空， 因此要注意onStartCommand对intent的非空判断*/ public static final int START_STICKY = 1; /**常规操作，除非在Service被杀死前还有组件调用startService, 否则系统不会保留启动状态并重启该Service*/ public static final int START_NOT_STICKY = 2; /**Service被杀死后，系统会组织一次Service的重启（除非在那之前调用了 stopSelf方法），被杀死前最后一次传递的intent将重新执行，该flag不会 传递空的intent。*/ public static final int START_REDELIVER_INTENT = 3; Service的生命周期方法onCreate、onStart、onBind等运行在哪个线程？ Service默认是运行在主线程的，其生命周期方法也是运行在主线程： 因此，如果要在Service中进行耗时操作，必须另起线程，或者用IntentService，否则很容易引起ANR。]]></content>
+      <categories>
+        <category>android学习计划</category>
+      </categories>
+      <tags>
+        <tag>android</tag>
+      </tags>
   </entry>
   <entry>
     <title><![CDATA[理解Java中的synchronized关键字]]></title>
