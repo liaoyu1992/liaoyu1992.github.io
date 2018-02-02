@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-02-02T07:44:45.701Z</updated>
+  <updated>2018-02-02T08:49:03.404Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,33 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>关于startActivityForResult</title>
+    <link href="http://yoursite.com/2018/02/02/startactvityforresult/"/>
+    <id>http://yoursite.com/2018/02/02/startactvityforresult/</id>
+    <published>2018-02-02T08:12:25.000Z</published>
+    <updated>2018-02-02T08:49:03.404Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h2><p>理解startActivityForResult</p><ol><li><p>startActivityForResult的使用场景是什么？onActivityResult回调里面的resultCode和requestCode含义是什么？</p></li><li><p>Activity A启动B的时候，在B中何时该执行setResult ？setResult可以位于Activity的finish方法之后吗？</p></li></ol><p>注意以下基于 7.0 源码讨论。</p><h3 id="startActivityForResult的使用场景是什么？onActivityResult回调里面的resultCode和requestCode含义是什么？"><a href="#startActivityForResult的使用场景是什么？onActivityResult回调里面的resultCode和requestCode含义是什么？" class="headerlink" title="startActivityForResult的使用场景是什么？onActivityResult回调里面的resultCode和requestCode含义是什么？"></a>startActivityForResult的使用场景是什么？onActivityResult回调里面的resultCode和requestCode含义是什么？</h3><h4 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h4><blockquote><p>用户开始新的活动，并且希望得到新活动的某些信息。比如选择照片、选择联系人、选择收货地址、进行某块数据编辑工作等。</p></blockquote><h4 id="requestCode"><a href="#requestCode" class="headerlink" title="requestCode"></a>requestCode</h4><blockquote><p>解决的是「区分多个异步任务」的问题。与其他异步 API 的设计类似，如果没有这个信息，那么 Activity 在收到响应时会进入混乱的状态。比如他不知道自己得到的是选择照片还是选择联系人的结果。</p><p>该信息会发送到 AMS 那边的 ActivityRecord.requestCode 变量进行记录，Client 端新 Activity 并不知道这个信息。</p><p>为什么 requestCode &lt; 0 时收不到结果？</p><ul><li><p>ActivityStarter 收到 startActivityLocked 时，写入ActivityRecord.resultTo 变量为空// <a href="http://androidxref.com/7.0.0_r1/xref/frameworks/base/services/core/java/com/android/server/am/ActivityStarter.java#266" target="_blank" rel="noopener">链接：Cross Reference: /frameworks/base/services/core/ja…</a></p><pre><code> if (requestCode &gt;= 0 &amp;&amp; !sourceRecord.finishing) {    // 只有非负数时新的 ActivityRecord 对象的 resultTo 变量才    指向发起者 ActivityRecord 对象    resultRecord = sourceRecord;}</code></pre><ul><li>在 ActivityStack 收到 finishActivityResultsLocked 时，读取ActivityRecord.resultTo 变量为空，结果数据不会添加到源 ActivityRecord.results 变量。</li></ul></li></ul><ul><li>在 ActivityStack 收到 resumeTopActivityInnerLocked 时，读取 ActivityRecord.results 数组为空，不会分发结果数据，这样源 Activity 也就没有结果回调了</li></ul></blockquote><h4 id="resultCode"><a href="#resultCode" class="headerlink" title="resultCode"></a>resultCode</h4><blockquote><p>异步调用结果码，告诉调用者成功/失败/其它信息</p><p>该信息由被调用 Activity / framework 写入，并经过 AMS 传递给源 Activity</p></blockquote><h3 id="A-启动-B-，B-中何时执行-setResult-setResult-是否可以位于-finish-之后？"><a href="#A-启动-B-，B-中何时执行-setResult-setResult-是否可以位于-finish-之后？" class="headerlink" title="A 启动 B ，B 中何时执行 setResult ? setResult 是否可以位于 finish 之后？"></a>A 启动 B ，B 中何时执行 setResult ? setResult 是否可以位于 finish 之后？</h3><blockquote><p>setResult 在 finish 之前执行，只是把数据记录在 Activity.mResultCode 和 Activity.mResultData 变量中:</p><ul><li>最早 Activity 构造器阶段</li><li><p>最晚 Activity.finalize 内存回收阶段</p><pre><code>  // Home 键 + 不保留后台 Activity 可触发 onDestroy@Overrideprotected void onDestroy() {    super.onDestroy();    Log.d(TAG, &quot;onDestroy() called&quot;);    new ReqGC().start();}@Overrideprotected void finalize() throws Throwable {    Log.d(TAG, &quot;finalize() called&quot;);    finish();    super.finalize();}@Overridepublic void finish() {    Log.d(TAG, &quot;finish() called&quot;);    setResult(RESULT_OK, new Intent().putExtra(&quot;key&quot;,             &quot;resultData&quot;));    super.finish();}// 不泄漏 Activity 对象static class ReqGC {     public void start() {        final Handler handler = new Handler();        handler.postDelayed(new Runnable() {            @Override            public void run() {                System.gc();                handler.postDelayed(this, 10);            }        }, 10);    }}</code></pre></li></ul><p>setResult不可以位于finish之后</p><ul><li>如果位于finish之后执行，那信息无法传递给源 Activity</li><li>从代码可以看出setResult和finish类似生产者/消费者模型，setResult 负责写入数据，finish 负责读取数据。</li></ul></blockquote><h4 id="线程安全问题"><a href="#线程安全问题" class="headerlink" title="线程安全问题"></a>线程安全问题</h4><blockquote><ul><li><p>Activity.mResultCode 和 Activity.mResultData 变量由 Activity 对象的锁进行保护</p></li><li><p>支持后台线程和 UI 线程分别进行 setResult 和 finish</p></li><li><p>但是为什么需要加锁保护这两个信息？需要「解决什么问题」？</p></li></ul></blockquote><h4 id="API-设计-数据组装问题"><a href="#API-设计-数据组装问题" class="headerlink" title="API 设计/数据组装问题"></a>API 设计/数据组装问题</h4><blockquote><ul><li><p>底层 AMS 提供的接口的参数是 setResult 和 finish 的参数的组合形式，但是 Activity 为什么把一个接口拆分成两个接口给开发者使用？</p></li><li><p>使用方便。很多情况下调用者只关心 finish ，不需要理解太多的信息</p></li></ul></blockquote><h3 id="API-内部原理-数据处理流程"><a href="#API-内部原理-数据处理流程" class="headerlink" title="API 内部原理/数据处理流程"></a>API 内部原理/数据处理流程</h3><blockquote><p><a href="http://upload-images.jianshu.io/upload_images/6575830-cd7aada2f45de461.png" target="_blank" rel="noopener">链接：6575830-cd7aada2f45de461.png (PNG Image, 3632 × 34…</a></p><p>关键节点：</p><ul><li>Client 端通过 AMP 把数据发送给 Server 端 AMS Binder 实体</li><li>AMS 把数据包装成 ActivityResult 并保存在源 ActivityRecord 的 results 变量中</li><li>AMS 通过 ApplicationThreadProxy 向 Client 端发送 pause 信息让栈顶 Activity 进入 paused 状态，并等待 Client 端回复或超时</li><li>AMS 接收 Client 端已 paused 信息，恢复下一个获取焦点的 Activity ，读取之前保存在 ActivityRecord.results 变量的数据派发给 Client 端对应的 Activity</li><li>Client 端数据经过 ApplicationThread 对象、ActivityThread 对象的分发最后到达 Activity</li></ul></blockquote><h3 id="startActivityForResult-和-singleTask-导致源-Activity-收不到正确结果问题"><a href="#startActivityForResult-和-singleTask-导致源-Activity-收不到正确结果问题" class="headerlink" title="startActivityForResult 和 singleTask 导致源 Activity 收不到正确结果问题"></a>startActivityForResult 和 singleTask 导致源 Activity 收不到正确结果问题</h3><blockquote><ul><li><p>基本原则:源 Activity 和目标 Activity 无法在跨 Task 情况下通过 onActivityResult 传递数据</p></li><li><p>Android 5.0 以上 AMS 在处理 manifest.xml 文件中的 singleTask 和 singleInstance 信息「不会」创建新的 Task，因此可以收到正常回调</p><p> <a href="http://androidxref.com/7.0.0_r1/xref/frameworks/base/services/core/java/com/android/server/am/ActivityStarter.java#1196" target="_blank" rel="noopener">链接：Cross Reference: /frameworks/base/services/core/ja…</a></p></li><li><p>Android 4.4.4 以下 AMS 在处理 manifest.xml 文件中的 singleTask 和 singleInstance 信息「会」创建新的 Task，因此在 startActivity 之后立即收到取消的回调</p><p> <a href="http://androidxref.com/4.4.4_r1/xref/frameworks/base/services/java/com/android/server/am/ActivityStackSupervisor.java#1399" target="_blank" rel="noopener">链接：Cross Reference: /frameworks/base/services/java/co…</a></p></li><li><p>通过 dumpsys activity activities 命令查看 AMS 状态，验证两个 Activity 是否属于不同的 Task</p></li></ul></blockquote>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;学习目标&quot;&gt;&lt;a href=&quot;#学习目标&quot; class=&quot;headerlink&quot; title=&quot;学习目标&quot;&gt;&lt;/a&gt;学习目标&lt;/h2&gt;&lt;p&gt;理解startActivityForResult&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;p&gt;startActivityForResul
+      
+    
+    </summary>
+    
+      <category term="Android学习计划" scheme="http://yoursite.com/categories/Android%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/"/>
+    
+    
+      <category term="-android" scheme="http://yoursite.com/tags/android/"/>
+    
+  </entry>
   
   <entry>
     <title>Activity的启动模式</title>
