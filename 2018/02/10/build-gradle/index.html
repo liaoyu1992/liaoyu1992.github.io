@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="gradle," />
 
 
 
@@ -81,16 +81,18 @@
 
 
 
-<meta name="description" content="没有比脚更长的路，走过去，前面是个天！">
-<meta property="og:type" content="website">
-<meta property="og:title" content="蓝调华尔兹">
-<meta property="og:url" content="http://yoursite.com/archives/2018/01/index.html">
+<meta name="description" content="学习目标了解AndroidStudio（以下简称AS）项目中build.gradle文件。 每个新建AS项目中会有两个build.gradle文件，最外层目录有一个，然后app目录下会包含一个。 最外层目录下的build.gradle文件代码如下： buildscript{     respositories{         jcenter()     }     dependencies {">
+<meta name="keywords" content="gradle">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AndroidStudio项目中build.gradle文件(1)">
+<meta property="og:url" content="http://yoursite.com/2018/02/10/build-gradle/index.html">
 <meta property="og:site_name" content="蓝调华尔兹">
-<meta property="og:description" content="没有比脚更长的路，走过去，前面是个天！">
+<meta property="og:description" content="学习目标了解AndroidStudio（以下简称AS）项目中build.gradle文件。 每个新建AS项目中会有两个build.gradle文件，最外层目录有一个，然后app目录下会包含一个。 最外层目录下的build.gradle文件代码如下： buildscript{     respositories{         jcenter()     }     dependencies {">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-02-24T13:28:59.759Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="蓝调华尔兹">
-<meta name="twitter:description" content="没有比脚更长的路，走过去，前面是个天！">
+<meta name="twitter:title" content="AndroidStudio项目中build.gradle文件(1)">
+<meta name="twitter:description" content="学习目标了解AndroidStudio（以下简称AS）项目中build.gradle文件。 每个新建AS项目中会有两个build.gradle文件，最外层目录有一个，然后app目录下会包含一个。 最外层目录下的build.gradle文件代码如下： buildscript{     respositories{         jcenter()     }     dependencies {">
 
 
 
@@ -120,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2018/01/"/>
+  <link rel="canonical" href="http://yoursite.com/2018/02/10/build-gradle/"/>
 
 
 
 
 
-  <title>归档 | 蓝调华尔兹</title>
+  <title>AndroidStudio项目中build.gradle文件(1) | 蓝调华尔兹</title>
   
 
 
@@ -155,7 +157,7 @@
     
   
 
-  <div class="container sidebar-position-left page-archive">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -283,74 +285,191 @@
           <div id="content" class="content">
             
 
+  <div id="posts" class="posts-expand">
+    
+
+  
+
   
   
   
-  <div class="post-block archive">
-    <div id="posts" class="posts-collapse">
-      <span class="archive-move-on"></span>
-
-      <span class="archive-page-counter">
-        
-        
-        
-          
-        
-        嗯..! 目前共计 11 篇日志。 继续努力。
-      </span>
-
-      
-
-        
-        
-        
-
-        
-          
-          <div class="collection-title">
-            <h1 class="archive-year" id="archive-year-2018">2018</h1>
-          </div>
-        
-        
-
-        
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/build-gradle/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="YU.LIAO">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝调华尔兹">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2018/01/30/hello-world/" itemprop="url">
-              
-                <span itemprop="name">Hello World</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">AndroidStudio项目中build.gradle文件(1)</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2018-01-30T16:56:01+08:00"
-              content="2018-01-30" >
-          01-30
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-10T15:23:12+08:00">
+                2018-02-10
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/gradle学习/" itemprop="url" rel="index">
+                    <span itemprop="name">gradle学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
+      
 
+      
+        <h3 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h3><p>了解AndroidStudio（以下简称AS）项目中build.gradle文件。</p>
+<p>每个新建AS项目中会有两个build.gradle文件，最外层目录有一个，然后app目录下会包含一个。</p>
+<p>最外层目录下的build.gradle文件代码如下：</p>
+<pre><code>buildscript{
+    respositories{
+        jcenter()
+    }
+    dependencies {
+       classpath &apos;com.android.tools.build:gradle:2.2.3&apos;
+    }
+}
+allprojects{
+    repositories {
+        jcenter()
+  }
+}
+</code></pre><p>这些代码都是自动生成的。然我们看关键部分：</p>
+<p>两处respositories闭包都声明了jcenter()配置，JCenter是由JFrog公司提供的Bintray中的Java仓库。它是当前世界上最大的Java和Android开源软件构件仓库。所有内容都通过内容分发网络（CDN）使用加密https连接获取。JCenter是Goovy Grape内的默认仓库，Gradle内建支持（jcenter()仓库），非常易于在（除了Maven之外的）其他构建工具内进行配置。</p>
+<p>dependencies闭包中使用classpath声明了一个gradle插件，因为gradle不是专门为Android项目开发的，C++、Java等很多项目都能用gradle构建，因此，要使用gradle构建Android项目，需要声明gradle的Android插件。</p>
+
+      
     </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/gradle/" rel="tag"># gradle</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/06/andriod-eight/" rel="next" title="Java基础知识复习">
+                <i class="fa fa-chevron-left"></i> Java基础知识复习
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/10/android-study/" rel="prev" title="Android学习路线">
+                Android学习路线 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -358,6 +477,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -378,8 +501,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -468,6 +600,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#学习目标"><span class="nav-number">1.</span> <span class="nav-text">学习目标</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -608,6 +756,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
