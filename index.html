@@ -298,6 +298,192 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/11/activity-实践技巧/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="YU.LIAO">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝调华尔兹">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/11/activity-实践技巧/" itemprop="url">Activity实践技巧</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-11T21:07:51+08:00">
+                2018-03-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android学习计划/" itemprop="url" rel="index">
+                    <span itemprop="name">Android学习计划</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="关于Activity的一些实践技巧"><a href="#关于Activity的一些实践技巧" class="headerlink" title="关于Activity的一些实践技巧"></a>关于Activity的一些实践技巧</h2><h4 id="1、知道当前是在哪一个Activity"><a href="#1、知道当前是在哪一个Activity" class="headerlink" title="1、知道当前是在哪一个Activity"></a>1、知道当前是在哪一个Activity</h4><p>可以在所有Activity的父类（基类）的<code>onCreate()</code>中调用<code>getClass().getSimpleName()</code>方法获取当前实例的类名并打印出来，如下：</p>
+<pre><code>protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main2);
+    Log.i(&quot;MainActivity2&quot;,&quot;oncreate&quot;+getClass().getSimpleName());
+        }
+    });
+}
+</code></pre><p>这样，当我们进入一个Activity时，改Activity的类名就会打印出来，我们可以随时知道我们当前页面对应哪一个Activity。</p>
+<h4 id="2、随时随地退出程序"><a href="#2、随时随地退出程序" class="headerlink" title="2、随时随地退出程序"></a>2、随时随地退出程序</h4><p>当你当前Activity所在任务栈中实例很多事，想退出程序是很不方便的事情，需要按很多次back键，按home键只是挂起，并没有退出。要解决这个问题，只需要一个专门的集合类对所有的Activity进行管理就可以了，例如：</p>
+<p>新建一个ActivityCollector类作为Activity的管理类。</p>
+<pre><code>public class ActivityCollector {
+    public static List&lt;Activity&gt; mActivities = new ArrayList&lt;&gt;();
+    public static void addActivity(Activity activity){
+        mActivities.add(activity);
+    }
+    public static void removeActivity(Activity activity){
+        mActivities.remove(activity);
+    }
+    public static void finishAll(){
+        for (Activity activity:mActivities){
+            if(!activity.isFinishing()){
+                activity.finish();
+            }
+        }
+    }
+}
+</code></pre><p>可以在所有Activity的父类（基类）的<code>onCreate()</code>中调用<code>ActivityCollector. addActivity(this)</code>，在<code>onDestroy()</code>中调用<code>ActivityCollector. removeActivity(this)</code>，如果要直接退出程序，可以调用<code>ActivityCollector. finishAll()</code>，还可以在销毁所有Activity后调用<code>android.os.Process.killProcess(android.os.Process.myPid())</code></p>
+<p><code>killProcess()</code>的作用是杀掉一个进程，参数为一个进程id，我们通过<code>myPid()</code>来获取当前程序的进程id，需要注意的是，这个方法只能用于杀掉当前程序的进程，不能用这个方法杀死其他程序的进程。</p>
+<h4 id="启动活动的最佳写法"><a href="#启动活动的最佳写法" class="headerlink" title="启动活动的最佳写法"></a>启动活动的最佳写法</h4><p>启动活动的方法大家都很熟悉，首先通过Intent构建意图，然后调用startActivity()或者startActivityForResult()方法将活动启动起来，如果有数据从一个活动到另一个活动，也可以借助Intent来完成。</p>
+<p>假设Main2Activity中需要用到两个重要的参数，在启动Main2Activity的时候必须要传递过来，那么，我们很容易写成下面这个代码：</p>
+<pre><code>Intent intent = new Intent(this,Main2Activity.class);
+intent.putExtra(&quot;param1&quot;,&quot;param1&quot;);
+intent.putExtra(&quot;param2&quot;,&quot;param2&quot;);
+startActivity(intent);
+</code></pre><p>这样写本身没有什么问题，但是在实际开发中会给其他同事造成困扰，换一种写法，在MAin2Activity中增加一个<code>actionStart()</code>方法:</p>
+<pre><code>public static void actionStart(Context context,String param1,String param2){
+    Intent intent = new Intent(context,Main2Activity.class);
+    intent.putExtra(&quot;param1&quot;,&quot;param1&quot;);
+    intent.putExtra(&quot;param2&quot;,&quot;param2&quot;);
+    context.startActivity(intent);
+}
+</code></pre><p>在要启动Main2Activity的地方调用这个方法：</p>
+<pre><code>Main2Activity.actionStart(this,&quot;param1&quot;,&quot;param2&quot;);
+</code></pre><p>这样写就一目了然了，启动Main2Activity所需要的参数。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/11/anout-intent/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -525,165 +711,6 @@ finish();
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/android-study/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="YU.LIAO">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蓝调华尔兹">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/10/android-study/" itemprop="url">Android学习路线</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-10T15:23:12+08:00">
-                2018-02-10
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android学习计划/" itemprop="url" rel="index">
-                    <span itemprop="name">Android学习计划</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="Android-学习路线终极指南"><a href="#Android-学习路线终极指南" class="headerlink" title="Android 学习路线终极指南"></a>Android 学习路线终极指南</h2><p>推荐一个学习方法给大家，你需要 三篇文章 + 三本书 + 一年时间。</p>
-<h4 id="三篇文章"><a href="#三篇文章" class="headerlink" title="三篇文章"></a>三篇文章</h4><ul>
-<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/46810527" target="_blank" rel="noopener">链接-我对Android的理解</a></li>
-<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/42343847" target="_blank" rel="noopener">链接-Android学习路线：如何成长为高级工程师</a></li>
-<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/49560409" target="_blank" rel="noopener">链接-Android学习路线指南</a></li>
-</ul>
-<h4 id="三本书"><a href="#三本书" class="headerlink" title="三本书"></a>三本书</h4><p><code>《第一行代码 Android》、《Android开发艺术探索》、《Android源码设计模式解析与实战》</code></p>
-<p>花一年时间把它们撸完就行。</p>
-<p>“什么？你一年撸不完？”</p>
-<p>那你回到高三的时代，按那个学习的强度来，一年时间三本书肯定可以撸完，相信我。</p>
-<p>出名要趁早，提高技术也要趁早！</p>
-<p>不管是学习任何技术，下面几句话都通用：</p>
-<ul>
-<li>要梳理知识，对知识建立起体系化的感觉</li>
-<li>好奇心，要知其所以然</li>
-<li>在最短的时间去实践</li>
-</ul>
-<p><strong>最后，给大家送句话，不是鸡汤，是真理：<br>别人光鲜的背后，总有着鲜为人知的苦楚。</strong></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/build-gradle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -796,6 +823,165 @@ allprojects{
 </code></pre><p>这些代码都是自动生成的。然我们看关键部分：</p>
 <p>两处respositories闭包都声明了jcenter()配置，JCenter是由JFrog公司提供的Bintray中的Java仓库。它是当前世界上最大的Java和Android开源软件构件仓库。所有内容都通过内容分发网络（CDN）使用加密https连接获取。JCenter是Goovy Grape内的默认仓库，Gradle内建支持（jcenter()仓库），非常易于在（除了Maven之外的）其他构建工具内进行配置。</p>
 <p>dependencies闭包中使用classpath声明了一个gradle插件，因为gradle不是专门为Android项目开发的，C++、Java等很多项目都能用gradle构建，因此，要使用gradle构建Android项目，需要声明gradle的Android插件。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/android-study/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="YU.LIAO">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="蓝调华尔兹">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/10/android-study/" itemprop="url">Android学习路线</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-10T15:23:12+08:00">
+                2018-02-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android学习计划/" itemprop="url" rel="index">
+                    <span itemprop="name">Android学习计划</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="Android-学习路线终极指南"><a href="#Android-学习路线终极指南" class="headerlink" title="Android 学习路线终极指南"></a>Android 学习路线终极指南</h2><p>推荐一个学习方法给大家，你需要 三篇文章 + 三本书 + 一年时间。</p>
+<h4 id="三篇文章"><a href="#三篇文章" class="headerlink" title="三篇文章"></a>三篇文章</h4><ul>
+<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/46810527" target="_blank" rel="noopener">链接-我对Android的理解</a></li>
+<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/42343847" target="_blank" rel="noopener">链接-Android学习路线：如何成长为高级工程师</a></li>
+<li><a href="http://blog.csdn.net/singwhatiwanna/article/details/49560409" target="_blank" rel="noopener">链接-Android学习路线指南</a></li>
+</ul>
+<h4 id="三本书"><a href="#三本书" class="headerlink" title="三本书"></a>三本书</h4><p><code>《第一行代码 Android》、《Android开发艺术探索》、《Android源码设计模式解析与实战》</code></p>
+<p>花一年时间把它们撸完就行。</p>
+<p>“什么？你一年撸不完？”</p>
+<p>那你回到高三的时代，按那个学习的强度来，一年时间三本书肯定可以撸完，相信我。</p>
+<p>出名要趁早，提高技术也要趁早！</p>
+<p>不管是学习任何技术，下面几句话都通用：</p>
+<ul>
+<li>要梳理知识，对知识建立起体系化的感觉</li>
+<li>好奇心，要知其所以然</li>
+<li>在最短的时间去实践</li>
+</ul>
+<p><strong>最后，给大家送句话，不是鸡汤，是真理：<br>别人光鲜的背后，总有着鲜为人知的苦楚。</strong></p>
 
           
         
@@ -2073,218 +2259,6 @@ public static final int START_REDELIVER_INTENT = 3;
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/01/java-sunc/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="YU.LIAO">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="蓝调华尔兹">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/02/01/java-sunc/" itemprop="url">理解Java中的synchronized关键字</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-01T21:40:42+08:00">
-                2018-02-01
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android学习计划/" itemprop="url" rel="index">
-                    <span itemprop="name">Android学习计划</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="学习目标"><a href="#学习目标" class="headerlink" title="学习目标"></a>学习目标</h2><p>理解synchronized的含义、明确synchronized关键字修饰普通方法、静态方法和代码块时锁对象的差异。</p>
-<p>有如下一个类A</p>
-<pre><code>class A {
-    public synchronized void a() {
-        System.out.println(&quot;a&quot;+System.currentTimeMillis());
-    }
-
-    public synchronized void b() {
-        System.out.println(&quot;b&quot;+System.currentTimeMillis());
-    }
-}
-</code></pre><p>然后创建两个对象</p>
-<pre><code>A a1 = new A();
-A a2 = new A();
-</code></pre><p>然后在两个线程中并发访问如下代码：</p>
-<pre><code>Thread a1.a();
-Thread a2.a();
-
-public class Test {
-    public static void main(String[] args) {
-
-        A a1 = new A();
-        A a2 = new A();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println(System.currentTimeMillis());
-                a1.a();
-            }
-        }).start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println(System.currentTimeMillis());
-                a2.a();
-            }
-        }).start();
-
-    }
-}
-</code></pre><p>请问二者能否构成线程同步？</p>
-<p>如果A的定义是下面这种呢？</p>
-<pre><code>class A {
-    public static synchronized void a() {
-        System.out.println(&quot;a&quot;+System.currentTimeMillis());
-    }
-
-    public static synchronized void b() {
-        System.out.println(&quot;b&quot;+System.currentTimeMillis());
-    }
-}
-</code></pre><h3 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h3><p>没有加static的时候结果是这样的:</p>
-<p><img src="/2018/02/01/java-sunc/sync.jpg" alt="sync"></p>
-<p>加了static的时候结果是这样的:</p>
-<p><img src="/2018/02/01/java-sunc/sync1.jpg" alt="sync1"></p>
-<p>可以看出，没有static时不能同步，有static时能同步。</p>
-<p>Java多线程中的同步机制会对资源进行加锁，保证在同一时间只有一个线程可以操作对应资源，避免多程同时访问相同资源发生冲突。Synchronized是Java中的关键字，它是一种同步锁，可以实现同步机制。</p>
-<p>Synchronized主修修饰对象为以下三种：</p>
-<ol>
-<li><p>修饰普通方法：一个对象中的加锁方法只允许一个线程访问。但要注意这种情况下锁的是访问该方法的实例对象，如果多个线程不同对象访问该方法，则无法保证同步。</p>
-</li>
-<li><p>修饰静态方法：由于静态方法是类方法，所以这种情况下锁的是包含这个方法的类，也就是类对象；这样如果多个线程不同对象访问该静态方法，也是可以保证同步的。</p>
-</li>
-<li><p>修饰代码块：其中普通代码块，如Synchronized（obj），这里的obj，可以为类中的一个属性、也可以是当前的对象，它的同步效果和修饰普通方法一样；Synchronized方法 （obj.class）静态代码块它的同步效果和修饰静态方法类似。</p>
-</li>
-</ol>
-<p>Synchronized方法控制范围较大，它会同步对象中所有Synchronized方法的代码。</p>
-<p>Synchronized代码块控制范围较小，它只会同步代码块中的代码，而位于代码块之外的代码是可以被多个线程访问的。</p>
-<p>简单来说 就是 Synchronized代码块更加灵活精确。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2335,7 +2309,7 @@ public class Test {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">12</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

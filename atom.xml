@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yoursite.com/"/>
-  <updated>2018-03-11T08:08:26.948Z</updated>
+  <updated>2018-03-12T12:59:28.032Z</updated>
   <id>http://yoursite.com/</id>
   
   <author>
@@ -15,6 +15,31 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Activity实践技巧</title>
+    <link href="http://yoursite.com/2018/03/11/activity-%E5%AE%9E%E8%B7%B5%E6%8A%80%E5%B7%A7/"/>
+    <id>http://yoursite.com/2018/03/11/activity-实践技巧/</id>
+    <published>2018-03-11T13:07:51.000Z</published>
+    <updated>2018-03-12T12:59:28.032Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="关于Activity的一些实践技巧"><a href="#关于Activity的一些实践技巧" class="headerlink" title="关于Activity的一些实践技巧"></a>关于Activity的一些实践技巧</h2><h4 id="1、知道当前是在哪一个Activity"><a href="#1、知道当前是在哪一个Activity" class="headerlink" title="1、知道当前是在哪一个Activity"></a>1、知道当前是在哪一个Activity</h4><p>可以在所有Activity的父类（基类）的<code>onCreate()</code>中调用<code>getClass().getSimpleName()</code>方法获取当前实例的类名并打印出来，如下：</p><pre><code>protected void onCreate(Bundle savedInstanceState) {    super.onCreate(savedInstanceState);    setContentView(R.layout.activity_main2);    Log.i(&quot;MainActivity2&quot;,&quot;oncreate&quot;+getClass().getSimpleName());        }    });}</code></pre><p>这样，当我们进入一个Activity时，改Activity的类名就会打印出来，我们可以随时知道我们当前页面对应哪一个Activity。</p><h4 id="2、随时随地退出程序"><a href="#2、随时随地退出程序" class="headerlink" title="2、随时随地退出程序"></a>2、随时随地退出程序</h4><p>当你当前Activity所在任务栈中实例很多事，想退出程序是很不方便的事情，需要按很多次back键，按home键只是挂起，并没有退出。要解决这个问题，只需要一个专门的集合类对所有的Activity进行管理就可以了，例如：</p><p>新建一个ActivityCollector类作为Activity的管理类。</p><pre><code>public class ActivityCollector {    public static List&lt;Activity&gt; mActivities = new ArrayList&lt;&gt;();    public static void addActivity(Activity activity){        mActivities.add(activity);    }    public static void removeActivity(Activity activity){        mActivities.remove(activity);    }    public static void finishAll(){        for (Activity activity:mActivities){            if(!activity.isFinishing()){                activity.finish();            }        }    }}</code></pre><p>可以在所有Activity的父类（基类）的<code>onCreate()</code>中调用<code>ActivityCollector. addActivity(this)</code>，在<code>onDestroy()</code>中调用<code>ActivityCollector. removeActivity(this)</code>，如果要直接退出程序，可以调用<code>ActivityCollector. finishAll()</code>，还可以在销毁所有Activity后调用<code>android.os.Process.killProcess(android.os.Process.myPid())</code></p><p><code>killProcess()</code>的作用是杀掉一个进程，参数为一个进程id，我们通过<code>myPid()</code>来获取当前程序的进程id，需要注意的是，这个方法只能用于杀掉当前程序的进程，不能用这个方法杀死其他程序的进程。</p><h4 id="启动活动的最佳写法"><a href="#启动活动的最佳写法" class="headerlink" title="启动活动的最佳写法"></a>启动活动的最佳写法</h4><p>启动活动的方法大家都很熟悉，首先通过Intent构建意图，然后调用startActivity()或者startActivityForResult()方法将活动启动起来，如果有数据从一个活动到另一个活动，也可以借助Intent来完成。</p><p>假设Main2Activity中需要用到两个重要的参数，在启动Main2Activity的时候必须要传递过来，那么，我们很容易写成下面这个代码：</p><pre><code>Intent intent = new Intent(this,Main2Activity.class);intent.putExtra(&quot;param1&quot;,&quot;param1&quot;);intent.putExtra(&quot;param2&quot;,&quot;param2&quot;);startActivity(intent);</code></pre><p>这样写本身没有什么问题，但是在实际开发中会给其他同事造成困扰，换一种写法，在MAin2Activity中增加一个<code>actionStart()</code>方法:</p><pre><code>public static void actionStart(Context context,String param1,String param2){    Intent intent = new Intent(context,Main2Activity.class);    intent.putExtra(&quot;param1&quot;,&quot;param1&quot;);    intent.putExtra(&quot;param2&quot;,&quot;param2&quot;);    context.startActivity(intent);}</code></pre><p>在要启动Main2Activity的地方调用这个方法：</p><pre><code>Main2Activity.actionStart(this,&quot;param1&quot;,&quot;param2&quot;);</code></pre><p>这样写就一目了然了，启动Main2Activity所需要的参数。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;关于Activity的一些实践技巧&quot;&gt;&lt;a href=&quot;#关于Activity的一些实践技巧&quot; class=&quot;headerlink&quot; title=&quot;关于Activity的一些实践技巧&quot;&gt;&lt;/a&gt;关于Activity的一些实践技巧&lt;/h2&gt;&lt;h4 id=&quot;1、知道当
+      
+    
+    </summary>
+    
+      <category term="Android学习计划" scheme="http://yoursite.com/categories/Android%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/"/>
+    
+    
+      <category term="android" scheme="http://yoursite.com/tags/android/"/>
+    
+  </entry>
   
   <entry>
     <title>关于Intent</title>
@@ -32,31 +57,6 @@
         &lt;h2 id=&quot;学习目标&quot;&gt;&lt;a href=&quot;#学习目标&quot; class=&quot;headerlink&quot; title=&quot;学习目标&quot;&gt;&lt;/a&gt;学习目标&lt;/h2&gt;&lt;p&gt;学习Intent相关知识。&lt;/p&gt;
 &lt;p&gt;Intent是Android程序中各个组件之间进行交互的一种重要方式。&lt;/p&gt;
 &lt;
-      
-    
-    </summary>
-    
-      <category term="Android学习计划" scheme="http://yoursite.com/categories/Android%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/"/>
-    
-    
-      <category term="android" scheme="http://yoursite.com/tags/android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Android学习路线</title>
-    <link href="http://yoursite.com/2018/02/10/android-study/"/>
-    <id>http://yoursite.com/2018/02/10/android-study/</id>
-    <published>2018-02-10T07:23:12.000Z</published>
-    <updated>2018-02-10T07:38:41.098Z</updated>
-    
-    <content type="html"><![CDATA[<h2 id="Android-学习路线终极指南"><a href="#Android-学习路线终极指南" class="headerlink" title="Android 学习路线终极指南"></a>Android 学习路线终极指南</h2><p>推荐一个学习方法给大家，你需要 三篇文章 + 三本书 + 一年时间。</p><h4 id="三篇文章"><a href="#三篇文章" class="headerlink" title="三篇文章"></a>三篇文章</h4><ul><li><a href="http://blog.csdn.net/singwhatiwanna/article/details/46810527" target="_blank" rel="noopener">链接-我对Android的理解</a></li><li><a href="http://blog.csdn.net/singwhatiwanna/article/details/42343847" target="_blank" rel="noopener">链接-Android学习路线：如何成长为高级工程师</a></li><li><a href="http://blog.csdn.net/singwhatiwanna/article/details/49560409" target="_blank" rel="noopener">链接-Android学习路线指南</a></li></ul><h4 id="三本书"><a href="#三本书" class="headerlink" title="三本书"></a>三本书</h4><p><code>《第一行代码 Android》、《Android开发艺术探索》、《Android源码设计模式解析与实战》</code></p><p>花一年时间把它们撸完就行。</p><p>“什么？你一年撸不完？”</p><p>那你回到高三的时代，按那个学习的强度来，一年时间三本书肯定可以撸完，相信我。</p><p>出名要趁早，提高技术也要趁早！</p><p>不管是学习任何技术，下面几句话都通用：</p><ul><li>要梳理知识，对知识建立起体系化的感觉</li><li>好奇心，要知其所以然</li><li>在最短的时间去实践</li></ul><p><strong>最后，给大家送句话，不是鸡汤，是真理：<br>别人光鲜的背后，总有着鲜为人知的苦楚。</strong></p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h2 id=&quot;Android-学习路线终极指南&quot;&gt;&lt;a href=&quot;#Android-学习路线终极指南&quot; class=&quot;headerlink&quot; title=&quot;Android 学习路线终极指南&quot;&gt;&lt;/a&gt;Android 学习路线终极指南&lt;/h2&gt;&lt;p&gt;推荐一个学习方法给大家，你需
       
     
     </summary>
@@ -91,6 +91,31 @@
     
     
       <category term="gradle" scheme="http://yoursite.com/tags/gradle/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android学习路线</title>
+    <link href="http://yoursite.com/2018/02/10/android-study/"/>
+    <id>http://yoursite.com/2018/02/10/android-study/</id>
+    <published>2018-02-10T07:23:12.000Z</published>
+    <updated>2018-02-10T07:38:41.098Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="Android-学习路线终极指南"><a href="#Android-学习路线终极指南" class="headerlink" title="Android 学习路线终极指南"></a>Android 学习路线终极指南</h2><p>推荐一个学习方法给大家，你需要 三篇文章 + 三本书 + 一年时间。</p><h4 id="三篇文章"><a href="#三篇文章" class="headerlink" title="三篇文章"></a>三篇文章</h4><ul><li><a href="http://blog.csdn.net/singwhatiwanna/article/details/46810527" target="_blank" rel="noopener">链接-我对Android的理解</a></li><li><a href="http://blog.csdn.net/singwhatiwanna/article/details/42343847" target="_blank" rel="noopener">链接-Android学习路线：如何成长为高级工程师</a></li><li><a href="http://blog.csdn.net/singwhatiwanna/article/details/49560409" target="_blank" rel="noopener">链接-Android学习路线指南</a></li></ul><h4 id="三本书"><a href="#三本书" class="headerlink" title="三本书"></a>三本书</h4><p><code>《第一行代码 Android》、《Android开发艺术探索》、《Android源码设计模式解析与实战》</code></p><p>花一年时间把它们撸完就行。</p><p>“什么？你一年撸不完？”</p><p>那你回到高三的时代，按那个学习的强度来，一年时间三本书肯定可以撸完，相信我。</p><p>出名要趁早，提高技术也要趁早！</p><p>不管是学习任何技术，下面几句话都通用：</p><ul><li>要梳理知识，对知识建立起体系化的感觉</li><li>好奇心，要知其所以然</li><li>在最短的时间去实践</li></ul><p><strong>最后，给大家送句话，不是鸡汤，是真理：<br>别人光鲜的背后，总有着鲜为人知的苦楚。</strong></p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;Android-学习路线终极指南&quot;&gt;&lt;a href=&quot;#Android-学习路线终极指南&quot; class=&quot;headerlink&quot; title=&quot;Android 学习路线终极指南&quot;&gt;&lt;/a&gt;Android 学习路线终极指南&lt;/h2&gt;&lt;p&gt;推荐一个学习方法给大家，你需
+      
+    
+    </summary>
+    
+      <category term="Android学习计划" scheme="http://yoursite.com/categories/Android%E5%AD%A6%E4%B9%A0%E8%AE%A1%E5%88%92/"/>
+    
+    
+      <category term="android" scheme="http://yoursite.com/tags/android/"/>
     
   </entry>
   
